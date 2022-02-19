@@ -7,6 +7,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@include file="WEB-INF/jspf/declarativemethods.jspf" %>
 <%! 
+	String colorChoice = "";
 	String userName = "";
 	String password = "";
 	boolean pref = false;
@@ -17,12 +18,12 @@
 	
 %>
 <%
-
 	errors = new ArrayList<String>();
 	
 	if (request.getParameter("btnLogin") != null){
 		userName =  checkRequiredField(request.getParameter("txtUserName"), "User name");
 		password = checkRequiredField(request.getParameter("txtPassword"), "Password");
+		colorChoice = request.getParameter("color");
 		
 		if (errors.isEmpty()){
 			if(password.equals(correctPassword) && userName.equals(correctUsername)){
@@ -31,6 +32,7 @@
 					Cookie userCookie = new Cookie("userName", userName);
 					Cookie passwordCookie = new Cookie("password", password);
 					Cookie saveCookie = new Cookie("save", "true");
+					Cookie colorCookie = new Cookie("color", colorChoice);
 					
 					userCookie.setMaxAge(60*60);
 					userCookie.setPath("/JEEx7");
@@ -43,13 +45,17 @@
 					saveCookie.setMaxAge(60*60);
 					saveCookie.setPath("/JEEx7");
 					response.addCookie(saveCookie);
+					
+					colorCookie.setMaxAge(60*60);
+					colorCookie.setPath("/JEEx7");
+					response.addCookie(colorCookie);
 				} else {
 					pref = false;
 					
 					if (request.getCookies() != null){
 						Cookie[] cookies = request.getCookies();
 						for (Cookie c: cookies){
-							if (c.getName().equals("userName") || c.getName().equals("password") || c.getName().equals("save")){
+							if (c.getName().equals("userName") || c.getName().equals("password") || c.getName().equals("save") || c.getName().equals("color")){
 								c.setMaxAge(0);
 								c.setPath("/JEEx7");
 								response.addCookie(c);
@@ -83,6 +89,10 @@
 				
 				if (c.getName().equals("save")){
 					pref = Boolean.parseBoolean(c.getValue());
+				}
+				
+				if (c.getName().equals("color")){
+					colorChoice = c.getValue();
 				}
 			}
 		}
@@ -122,7 +132,17 @@
                                                class="width-300" 
                                                value='<%= password %>'/>
                                     </td>
-                                </tr>                                
+                                </tr> 
+                                <tr>
+                                	<td colspan=2>
+                                		<select name="color" id="color">
+										  <option value="red" <% if (!colorChoice.isEmpty() && colorChoice.equals("red")){ %> selected <%} %>>Red</option>
+										  <option value="blue" <% if (!colorChoice.isEmpty() && colorChoice.equals("blue")){ %> selected <%} %>>Blue</option>
+										  <option value="green" <% if (!colorChoice.isEmpty() && colorChoice.equals("green")){ %> selected <%} %>>Green</option>
+										  <option value="yellow" <% if (!colorChoice.isEmpty() && colorChoice.equals("yellow")){ %> selected <%} %>>Yellow</option>
+										</select> 
+                                	</td>
+                                </tr>                               
                                 <tr>
                                     <td><input type="checkbox" name="chkSave" 
                                                <% if (pref) { %> checked="checked" <%} %>                                            
